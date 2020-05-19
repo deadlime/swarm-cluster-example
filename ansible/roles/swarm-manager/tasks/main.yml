@@ -1,0 +1,5 @@
+---
+- name: init docker swarm
+  docker_swarm:
+    advertise_addr: "{{ ansible_facts.eth1.ipv4.address }}"
+    state: present

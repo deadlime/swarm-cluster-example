@@ -1,0 +1,68 @@
+version: "3.2"
+services:
+  traefik:
+    image: traefik:v2.2.1
+    command:
+      - "--accesslog=true"
+
+      - "--api=true"
+      - "--api.dashboard=true"
+
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.swarmMode=true"
+
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+
+      - "--certificatesresolvers.myresolver.acme.email=root@8f.io"
+      - "--certificatesresolvers.myresolver.acme.storage=/etc/traefik/acme/acme.json"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik-net"
+
+        - "traefik.http.middlewares.test-auth.basicauth.users=test:$$2y$$05$$ooiVn4yz0coSR28J9O5wNuvGHyZPCAaRYSeDXDdKCkbbtKO31LJ1K"
+        - "traefik.http.middlewares.test-auth.basicauth.removeheader=true"
+
+        - "traefik.http.middlewares.test-redirectscheme.redirectscheme.scheme=https"
+        - "traefik.http.middlewares.test-redirectscheme.redirectscheme.permanent=true"
+
+        - "traefik.http.routers.api.rule=Host(`traefik.swarm01.example.com`)"
+        - "traefik.http.routers.api.middlewares=test-redirectscheme"
+        - "traefik.http.routers.api.entrypoints=web"
+
+        - "traefik.http.routers.api-secure.rule=Host(`traefik.swarm01.example.com`)"
+        - "traefik.http.routers.api-secure.service=api@internal"
+        - "traefik.http.routers.api-secure.middlewares=test-auth"
+        - "traefik.http.routers.api-secure.entrypoints=websecure"
+        - "traefik.http.routers.api-secure.tls=true"
+        - "traefik.http.routers.api-secure.tls.certresolver=myresolver"
+
+        - "traefik.http.services.dummy-svc.loadbalancer.server.port=9999"
+    volumes:
+      - /etc/traefik/acme:/etc/traefik/acme
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik-net
+
+networks:
+  traefik-net:
+    external:
+      name: traefik-net

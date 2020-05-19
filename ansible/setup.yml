@@ -1,0 +1,15 @@
+---
+- hosts: all
+  roles:
+  - role: docker
+    tags: ['docker']
+
+- hosts: managers
+  roles:
+  - role: swarm-manager
+    tags: ['swarm-manager']
+
+- hosts: workers
+  roles:
+  - role: swarm-worker
+    tags: ['swarm-worker']

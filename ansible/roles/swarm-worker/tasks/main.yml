@@ -1,0 +1,11 @@
+---
+- name: get swarm info
+  docker_swarm_info:
+  delegate_to: "{{ groups.managers[0] }}"
+  register: swarm_info
+- name: join swarm
+  docker_swarm:
+    state: join
+    join_token: "{{ swarm_info.swarm_facts.JoinTokens.Worker }}"
+    remote_addrs: ["{{ hostvars[groups.managers[0]]['ansible_eth1']['ipv4']['address']}}"]
+    advertise_addr: "{{ ansible_facts.eth1.ipv4.address }}"

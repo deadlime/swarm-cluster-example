@@ -1,0 +1,7 @@
+---
+- hosts: all
+  tasks:
+  - name: update all packages to the latest version
+    apt:
+      update_cache: yes
+      upgrade: full

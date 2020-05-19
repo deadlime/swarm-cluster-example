@@ -1,0 +1,5 @@
+[managers]
+manager01.swarm01.example.com
+
+[workers]
+worker[01:02].swarm01.example.com

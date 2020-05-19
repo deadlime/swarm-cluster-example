@@ -1,0 +1,5 @@
+---
+- hosts: managers
+  roles:
+  - role: stacks
+    tags: ['stacks']

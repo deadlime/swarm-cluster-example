@@ -1,0 +1,33 @@
+---
+- name: create swarm config directory
+  file:
+    path: /etc/swarm
+    state: directory
+
+- name: generate traefik stack
+  template:
+    src: traefik.yml.j2
+    dest: /etc/swarm/traefik.yml
+- name: create traefik config directory
+  file:
+    path: /etc/traefik/acme
+    state: directory
+- name: create traefik network
+  docker_network:
+    name: traefik-net
+    driver: overlay
+- name: deploy traefik stack
+  docker_stack:
+    name: traefik
+    compose:
+    - /etc/swarm/traefik.yml
+
+- name: generate whoami stack
+  template:
+    src: whoami.yml.j2
+    dest: /etc/swarm/whoami.yml
+- name: deploy whoami stack
+  docker_stack:
+    name: whoami
+    compose:
+    - /etc/swarm/whoami.yml
