@@ -24,7 +24,7 @@ $ ansible-playbook setup.yml
 
 ```
 $ cd ansible/
-$ ansible-playbook --ask-vault-pass setup.yml
+$ ansible-playbook --ask-vault-pass deploy.yml
 ```
 
 The Ansible Vault password is `test`. The basic auth for Traefik dashboard is `test:test`.
